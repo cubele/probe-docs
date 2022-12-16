@@ -88,13 +88,13 @@ struct example::what::{async_fn_env#0}
 
 写了一个小工具<https://github.com/cubele/rust-async-tree-parser>用来可视化这个依赖树，以zCore为例：
 
-![](./sys_read.png)
+![](./images/sys_read.png)
 
 可以看到read相关的系统调用里面await的future被抽象了，所以依赖树找不到实体的future。
 
 再比如join!的情况：
 
-![](./join.png)
+![](./images/join.png)
 
 被join的await逻辑和join本身分离了。
 
@@ -106,8 +106,11 @@ __awaitee可以帮助我们找到.await生成的结构，但会在一些没有�
 既然我们直接跟踪具体实现的一个poll函数，插桩的时候就没有之前的问题了。不过获取返回值的话可能还是需要no_inline。
 
 ## 一个例子
+zCore中的SleepFuture的poll函数没有被inline，直接可以在符号表里找到
 
 ## 总结
 如果是作为debug手段的话，用async-backtrace这个库插入静态追踪点肯定是最好的办法。而动态跟踪async函数具体的执行情况情况比较困难，根本原因是编译器没有做相关的支持。但是可以通过解析编译器emit的awaitee信息找到找到leaf future，定位其中显式实现的poll函数，对这些poll进行probe。
+
+从另一个角度看，本质上是因为.await这个语法糖生成的poll依赖并不是probe动态跟踪最关心的部分，关键的还是可能阻塞底层Future。所以没有必要对await生成的代码进行动态追踪（编译器目前似乎也没有支持），在debug的时候用静态插桩就足够了。
 
 因为async rust并不成熟，相关的编译流程以及debug支持都在不断的改进中。debuginfo可以关注tracking issue<https://github.com/rust-lang/rust/issues/73522>，async函数的编译过程改进可以看看<https://swatinem.de/blog/improving-async-codegen/>。
