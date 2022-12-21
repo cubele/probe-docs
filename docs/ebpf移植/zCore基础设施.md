@@ -11,4 +11,5 @@
 1. 编译时强制加入了`cargo.env("RUSTFLAGS", "-C force-frame-pointers=yes -C symbol-mangling-version=v0");`的flag，rCore使用的旧版flag似乎不管用了。
 2. 原本的backtrace是通过符号表查找符号名打印，我们在内核中引入了基于gimli实现的addr2line，并将zcore的debuginfo拷贝到内核里读取，从而可以打印出完整的backtrace，包括被inline函数的信息以及对应的文件位置。
 
-当然
+# notes
+引入gimli库本来是想用debuginfo做async函数相关的trace，不过后面发现这部分工作其实并不需要嵌入到内核里。如果要分析debuginfo做line2addr之类的事情的话完全可以在内核外面做得到地址。详细的backtrace也可以用<https://github.com/rcore-os/rCore/blob/master/tools/addr2line.py>的方法直接在外部得到。所以这部分的确有一些冗余，不过这样backtrace会比较方便。
