@@ -11,7 +11,7 @@ async rust debugging的tracking issue：<https://github.com/rust-lang/rust/issue
 ### stacktrace
 在正在执行的async函数里，可以用栈帧直接进行stacktrace，与正常函数一样。如果想要完整的调用链可以引入debuginfo获取inline函数的信息。
 
-当然得到的符号和一般函数会有区别，函数主体的符号会变成闭包，也会出现poll函数的符号以及使用的async runtime的相关函数。
+得到的符号和一般函数会有区别，函数主体的符号会变成闭包，也会出现poll函数的符号以及使用的async runtime的相关函数。
 
 如果想增强这些符号的可读性，可以加入编译选项`-Csymbol-mangling-version=v0`，这个RFC也会让其他函数的符号更加可读。
 
@@ -22,7 +22,9 @@ async rust debugging的tracking issue：<https://github.com/rust-lang/rust/issue
 ### 静态追踪点
 在async函数代码里插入静态追踪点是最直接的方法。tokio的[async-backtrace](https://crates.io/crates/async-backtrace)就是这么实现的。给每个async函数用宏在外面套一层async函数，在poll的时候就可以通过自己套的async函数里的poll获取结果，汇报给全局tracer处理即可。在async函数上加入对应的跟踪宏即可自动汇报他们的执行情况。
 
-但是从kprobe的角度来看，我们希望能够不修改代码，仅依赖编译器给出的信息定位async函数的执行流进行插桩。在目前的编译器的编译结果下，有几种思路：
+但是从kprobe的角度来看，我们希望能够不修改代码，仅依赖编译器给出的信息定位async函数的执行流进行插桩，也就是动态的跟踪一个async函数是否执行完毕，是否在Yield中。
+
+在目前的编译器的编译结果下，有几种思路：
 
 ### 跟踪poll函数
 对poll函数进行插桩，用retprobe截取返回值理论上是可以判断一个future是否完成的，但是有几个问题：
