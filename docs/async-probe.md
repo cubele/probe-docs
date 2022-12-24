@@ -30,7 +30,9 @@ async rust debugging的tracking issue：<https://github.com/rust-lang/rust/issue
 对poll函数进行插桩，用retprobe截取返回值理论上是可以判断一个future是否完成的，但是有几个问题：
 
 1. 使用.await生成的poll函数会生成比较复杂的符号，生成的结果还和具体async实现有关，需要手动去dwarf里查找，很难直接从原本的async函数名里获取（或者说，编译器不会emit这类信息），之前静态插桩就是通过插入代码获取了这个信息。
+   
 2. .await生成的poll函数很可能被inline优化掉，retprobe无法获取返回值，获取的信息有限。
+   
 3. 对于非leaf的future，只能判断他是否完成，无法知道状态机的具体状态，而递归插桩子future还是需要编译器的信息。
 
 如果想获取更多的信息，需要深入到函数的具体执行流里，也就是尝试通过跟踪闭包来实现。

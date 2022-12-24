@@ -42,11 +42,11 @@ pub fn raw_frame_dealloc(pa: PhysAddr) {
     FRAME_ALLOCATOR.exclusive_access().dealloc(pa.into());
 }
 ```
-直接返回地址而不映射到FrameTracker，兼容probe里的页管理。当然也可以修改probe里的数据结构使用统一风格管理。
+直接返回地址而不映射到FrameTracker，兼容probe里的页管理。当然也可以（建议）修改probe里的数据结构使用统一风格管理。
 
 *注意分配的页需要有内核RWX权限，目前为了方便，直接在new_kernel()函数初始化时全局更改了物理内存区域的权限，理论上只需要给分配的页权限*
 
-内核的内存复制函数：
+内核的内存复制函数（其实这个函数和OS无关）：
 ```rust
 /// Copy memory from src to dst, uses virtual address in kernel
 pub fn byte_copy(dst_addr: usize, src_addr: usize, len: usize) {
