@@ -108,6 +108,8 @@ __awaitee可以帮助我们找到.await生成的结构，但会在一些没有�
 ### 换一个角度
 既然我们看到了这个struct的结构，如果能在堆上找到他的话就可以直接知道async函数的执行情况了。
 
+这么做还有一个好处：可以根据struct的地址区别不同的协程实例，更方便统计执行情况。
+
 我能想到的方法只有用jprobe捕获poll函数的入参，不过这也是很困难的，一是之前说的async生成的poll函数并不好定位，二是rust里面的jprobe看起来会比C的实现难很多。
 
 ## 一个例子
@@ -118,6 +120,14 @@ zCore中的SleepFuture的poll函数没有被inline，直接可以在符号表里
 
 从另一个角度看，.await生成的poll依赖并不是probe动态跟踪最关心的部分，关键的是可能阻塞的底层Future。所以没有必要对await生成的代码进行动态追踪（编译器目前也没有支持），在debug的时候用静态插桩就足够了。
 
-如果真的要做到完美的动态插桩，加入编译器支持以后的jprobe应该是最可行的做法。
+如果真的要做到完整的动态插桩，加入编译器支持以后使用jprobe应该是最可行的做法。具体来说我们要知道async函数生成的Future里面的poll函数的地址以及具体的参数类型（状态机对应的struct结构），然后在对应的地址插入jprobe直接访问这个struct，从而每次poll以后struct更新的状态都可以直接看到。
+
+现在不能实现的原因是：
+
+1. 目前这个struct的结构只有在编译后才可以看到，可能要用别的手段实现jprobe的handler
+
+2. async函数生成的poll函数的地址在debuginfo里面不太好找，需要编译器支持
+
+3. rust想要实现jprobe可能会比较复杂。
 
 因为async rust并不成熟，相关的编译流程以及debug支持都在不断的改进中。debuginfo可以关注tracking issue<https://github.com/rust-lang/rust/issues/73522>，async函数的编译过程改进可以看看<https://swatinem.de/blog/improving-async-codegen/>。
