@@ -104,6 +104,12 @@ __awaitee可以帮助我们找到.await生成的结构，但会在一些没有�
 既然我们直接跟踪具体实现的一个poll函数，插桩的时候就没有之前的问题了。不过获取返回值的话可能还是需要no_inline。
 
 而如果关注的不是Future而是async函数本身的执行，可以直接在函数生成的闭包上插桩，甚至可以直接用line2addr定位具体的一句话插桩。
+
+### 换一个角度
+既然我们看到了这个struct的结构，如果能在堆上找到他的话就可以直接知道async函数的执行情况了。
+
+我能想到的方法只有用jprobe捕获poll函数的入参，不过这也是很困难的，一是之前说的async生成的poll函数并不好定位，二是rust里面的jprobe看起来会比C的实现难很多。
+
 ## 一个例子
 zCore中的SleepFuture的poll函数没有被inline，直接可以在符号表里找到`<kernel_hal::common::future::SleepFuture as core::future::future::Future>::poll`，插桩以后可以看到Waker触发前后两次poll分别返回Pending和Ready。
 
@@ -111,5 +117,7 @@ zCore中的SleepFuture的poll函数没有被inline，直接可以在符号表里
 如果是作为debug手段的话，用async-backtrace这个库插入静态追踪点肯定是最好的办法。而动态跟踪async函数具体的执行情况情况比较困难，根本原因是编译器没有做相关的debuginfo。但是可以通过解析编译器emit的awaitee信息找到找到leaf future，定位其中显式实现的poll函数，对这些poll进行probe，与插桩closure结合判断执行过程。
 
 从另一个角度看，.await生成的poll依赖并不是probe动态跟踪最关心的部分，关键的是可能阻塞的底层Future。所以没有必要对await生成的代码进行动态追踪（编译器目前也没有支持），在debug的时候用静态插桩就足够了。
+
+如果真的要做到完美的动态插桩，加入编译器支持以后的jprobe应该是最可行的做法。
 
 因为async rust并不成熟，相关的编译流程以及debug支持都在不断的改进中。debuginfo可以关注tracking issue<https://github.com/rust-lang/rust/issues/73522>，async函数的编译过程改进可以看看<https://swatinem.de/blog/improving-async-codegen/>。
