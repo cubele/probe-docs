@@ -1,0 +1,594 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-8.5.10">
+    
+    
+      
+        <title>移植rCore-Tutorial的例子 - My Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.975780f9.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.2505c338.min.css">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="None" data-md-color-accent="None">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#rcore-tutorial" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../../.." title="My Docs" class="md-header__button md-logo" aria-label="My Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            My Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              移植rCore-Tutorial的例子
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="My Docs" class="md-nav__button md-logo" aria-label="My Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    My Docs
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        kprobe and eBPF in rust
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../async-probe/" class="md-nav__link">
+        async函数跟踪总结
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3" type="checkbox" id="__nav_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3">
+          Ebpf移植
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Ebpf移植" data-md-level="1">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Ebpf移植
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ebpf/" class="md-nav__link">
+        portable ebpf 实现
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../zCore%E5%9F%BA%E7%A1%80%E8%AE%BE%E6%96%BD/" class="md-nav__link">
+        zCore基础设施实现
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="__nav_3_3" type="checkbox" id="__nav_3_3" checked>
+      
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3_3">
+          Kprobes
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" aria-label="Kprobes" data-md-level="2">
+        <label class="md-nav__title" for="__nav_3_3">
+          <span class="md-nav__icon md-icon"></span>
+          Kprobes
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E5%AE%9E%E7%8E%B0/" class="md-nav__link">
+        portable kprobe实现
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        移植rCore-Tutorial的例子
+      </a>
+      
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../%E7%A7%BB%E6%A4%8DzCore/" class="md-nav__link">
+        移植zCore
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+<h1 id="rcore-tutorial">移植rCore-Tutorial的例子</h1>
+<p><a href="https://github.com/cubele/rCore-Tutorial-Code-2022A/tree/main/os8">https://github.com/cubele/rCore-Tutorial-Code-2022A/tree/main/os8</a></p>
+<ol>
+<li>把probe模块复制到<code>os8/src</code>下，在<code>main.rs</code>引入模块并加入仓库里写的dependency：</li>
+</ol>
+<pre><code class="language-toml">[dependencies]
+lazy_static = { version = &quot;1.4&quot;, features = [&quot;spin_no_std&quot;] }
+lock = { git = &quot;https://github.com/DeathWish5/kernel-sync&quot;, rev = &quot;8486b8&quot; }
+riscv-decode = { git = &quot;https://github.com/latte-c/riscv-decode&quot;, rev = &quot;bc8da4e&quot; }
+</code></pre>
+<ol>
+<li>更改<code>probe/osutils.rs</code>，需要将里面的工具根据Tutorial重写：</li>
+</ol>
+<p>PAGE_SIZE：</p>
+<pre><code class="language-rust">pub const PAGE_SIZE: usize = crate::config::PAGE_SIZE;
+</code></pre>
+<p>页分配函数：</p>
+<pre><code class="language-rust">/// Allocate a page of memory, return virtual address
+/// The page need to be readable and executable by user, and writable by kernel
+pub fn alloc_page() -&gt; usize {
+    let pa = raw_frame_alloc().unwrap().into();
+    let va = pa; // identity mapping in kernel
+    va
+}
+
+/// Deallocate a page of memory from virtual address
+pub fn dealloc_page(va: usize) {
+    let pa = va;
+    raw_frame_dealloc(pa.into());
+}
+</code></pre>
+<p>因为tutorial中使用frame的生命周期实现dealloc，和probe里面手写的Drop无法兼容，所以需要写两个raw函数：</p>
+<pre><code class="language-rust">pub fn raw_frame_alloc() -&gt; Option&lt;PhysAddr&gt; {
+    FRAME_ALLOCATOR.exclusive_access().alloc().map(|ppn| ppn.into())
+}
+
+pub fn raw_frame_dealloc(pa: PhysAddr) {
+    FRAME_ALLOCATOR.exclusive_access().dealloc(pa.into());
+}
+</code></pre>
+<p>直接返回地址而不映射到FrameTracker，兼容probe里的页管理。当然也可以（建议）修改probe里的数据结构使用统一风格管理。</p>
+<p><em>注意分配的页需要有内核RWX权限，目前为了方便，直接在new_kernel()函数初始化时全局更改了物理内存区域的权限，理论上只需要给分配的页权限</em></p>
+<p>内核的内存复制函数（其实这个函数和OS无关）：</p>
+<pre><code class="language-rust">/// Copy memory from src to dst, uses virtual address in kernel
+pub fn byte_copy(dst_addr: usize, src_addr: usize, len: usize) {
+    let dst = dst_addr as *mut u8;
+    let src = src_addr as *const u8;
+    unsafe {
+        core::ptr::copy(src, dst, len);
+    }
+}
+</code></pre>
+<ol>
+<li>因为Tutorial没有使用Trapframe库，需要wrap一下Trapframe，更改<code>probe/arch/riscv/trapframe.rs</code>：</li>
+</ol>
+<pre><code class="language-rust">pub use crate::trap::TrapContext as TrapFrame;
+
+pub fn get_trapframe_pc(tf: &amp;TrapFrame) -&gt; usize {
+    tf.sepc
+}
+
+pub fn set_trapframe_pc(tf: &amp;mut TrapFrame, pc: usize) {
+    tf.sepc = pc;
+}
+
+pub fn get_trapframe_ra(tf: &amp;TrapFrame) -&gt; usize {
+    tf.x[1]
+}
+
+pub fn set_trapframe_ra(tf: &amp;mut TrapFrame, ra: usize) {
+    tf.x[1] = ra;
+}
+
+pub fn get_reg(tf: &amp;TrapFrame, reg: u32) -&gt; usize {
+    let index = reg as usize;
+    if index != 0 {
+        tf.x[index]
+    } else {
+        0
+    }
+}
+
+pub fn set_reg(tf: &amp;mut TrapFrame, reg: u32, val: usize) {
+    let index = reg as usize;
+    if index != 0 {
+        tf.x[index] = val;
+    }
+}
+</code></pre>
+<p>将Tutorial自己的Trapcontext包装为Trapframe，实现一些简单的操作。</p>
+<ol>
+<li>
+<p>由于probe需要替换指令，.text段的权限也要改为RWX，在new_kernel()函数里修改即可。</p>
+</li>
+<li>
+<p>在ebreak中S-&gt;S的trap函数里调用函数<code>kprobes_breakpoint_handler</code>：</p>
+</li>
+</ol>
+<pre><code class="language-rust">#[no_mangle]
+pub fn trap_from_kernel(_trap_cx: &amp;TrapContext) {
+    let scause = scause::read();
+    let stval = stval::read();
+    match scause.cause() {
+        Trap::Exception(Exception::Breakpoint) =&gt; {
+            println!(&quot;[kernel] breakpoint at {:#x}&quot;, _trap_cx.sepc);
+            unsafe {kprobes_breakpoint_handler(_trap_cx);}
+        }
+        _ =&gt; {
+            panic!(
+                &quot;Unsupported trap from kernel: {:?}, stval = {:#x}!&quot;,
+                scause.cause(),
+                stval
+            );
+        }
+    }
+}
+</code></pre>
+<p>2022A的Tutorial没有实现S-&gt;S的trap，需要从<a href="https://github.com/rcore-os/rCore-Tutorial-v3/tree/main/os/src/trap">https://github.com/rcore-os/rCore-Tutorial-v3/tree/main/os/src/trap</a>里复制过来。</p>
+<ol>
+<li>在main函数初始化完成后调用<code>probe::run_tests();</code>即可测试。</li>
+</ol>
+<p>移植完毕后相关的syscall可以通过<code>probe</code>模块里的接口函数实现。可以参考后续eBPF移植时syscall的实现。</p>
+<p>如果要实现通过符号注册probe的话需要引入内核的符号表并在<code>osutils</code>中提供符号转地址的函数，实现以后就可以直接用<code>register_kprobe_with_symbol</code>的接口。</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../%E5%AE%9E%E7%8E%B0/" class="md-footer__link md-footer__link--prev" aria-label="Previous: portable kprobe实现" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              portable kprobe实现
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../%E7%A7%BB%E6%A4%8DzCore/" class="md-footer__link md-footer__link--next" aria-label="Next: 移植zCore" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              移植zCore
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../../..", "features": [], "search": "../../../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.5a2dcb6a.min.js"></script>
+      
+    
+    
+  </body>
+</html>
